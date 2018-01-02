@@ -1,0 +1,9 @@
+# -*- coding: us-ascii-unix -*-
+#
+# Remember that this has to be ASCII because the user hasn't told us
+# his or her terminal type or locale yet.
+#
+ Pupper bulletin board, version 0, 26 Dec 17
+ Mike Gran
+ Los Angeles CA
+ (c) 2017. All rights reserved.
