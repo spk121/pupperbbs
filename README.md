@@ -10,6 +10,27 @@ such a thing as a BBS over Telnet.  I thought I would write one.
 When complete, this should allow one to post to a message board, and to
 download files via XMODEM or maybe ZMODEM.
 
+## License
+
+If I use MySQL Connector, which is GPL2, then this must be GPL2.
+
+So GPL2.  Pity I can't make it GPL3+.
+
+## THE FINISHING THINGS MANIFESTO
+
+* I will write as little code as possible.
+* I will sensibly and liberally use common libraries and components.
+* I will read and completely understand common libraries I plan to use
+  _before_ I start coding.
+* I will adapt my design to the strengths and constraints created by
+  the libraries and components I use, instead of wrangling them into
+  matching my vision.
+* I will not concern myself with portability until after the program
+  is complete.
+* I will not concern myself about my program being hard to build or
+  stage until after it is complete.
+* I will just accept that GNU Autotools for GNU/Linux and MSBuild on
+  Windows are the best available build tools.
 
 ## Puppy's internal databases
 
