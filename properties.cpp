@@ -18,7 +18,7 @@ void pup_static::load(const std::string &filename)
     } catch(...){};
 
 	open_msg_filename = tree.get("puppy.open-msg-filename", "puppermsg.txt");
-	db_password = tree.get("puppy.db-password", "password");
+	db_password = tree.get("puppy.db-password", "invalid_password");
     nlimit = tree.get("puppy.time-limit", 60);
     klimit = tree.get("puppy.k-limit", 200);
     maxbaud = tree.get("puppy.max-baud", 1200);

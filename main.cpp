@@ -26,7 +26,7 @@ int main(int argc, char **argv)
 
     // Ini file parsing
     pup_static _ps;
-    _ps.load("ps.dat");
+    _ps.load("pupper.xml");
 
     // ASCII-only opening message.
     write_file_to_cout(_ps.open_msg_filename);
@@ -48,7 +48,7 @@ int main(int argc, char **argv)
        //      mysqlx::SessionOption::PWD, "passw0rd",
        //      mysqlx::SessionOption::DB, "pupper");
     try { 
-        mysqlx::Session sess("localhost", 33060, "pupper", "Passw0rd#"); 
+        mysqlx::Session sess("localhost", 33060, "pupper", _ps.db_password); 
         mysqlx::Schema db = sess.getSchema("pupper");
         mysqlx::Table persist = db.getTable("persistent");
         mysqlx::RowResult rr = persist.select("callers").execute();
