@@ -1,6 +1,6 @@
 CREATE DATABASE IF NOT EXISTS pupper;
-CREATE USER '@SQL_USER@'@'localhost' IDENTIFIED BY '@SQL_PASSWORD@';
-GRANT ALL on pupper.* to '@SQL_USER@'@'localhost';
+CREATE USER 'pupper'@'localhost' IDENTIFIED BY '@SQL_PASSWORD@';
+GRANT ALL on pupper.* to 'pupper'@'localhost';
 
 USE pupper;
 

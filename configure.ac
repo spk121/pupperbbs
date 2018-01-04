@@ -14,32 +14,19 @@ AC_PROG_CXX
 PKG_PROG_PKG_CONFIG([1.3.0])
 
 # Checks for libraries.
-PKG_CHECK_MODULES([NCURSES_CXX], [ncurses++w ncursesw])
-AC_LANG_PUSH([C++])
-#AC_CHECK_LIB([mysqlcppconn8],[mysqlx::Session::Session])
-AC_LANG_POP([C++])
+# PKG_CHECK_MODULES([NCURSES_CXX], [ncurses++w ncursesw])
 
 # Checks for header files.
-AC_LANG_PUSH([C++])
-AC_CHECK_HEADER([mysql_devapi.h],,
-                [AC_MSG_ERROR([Couldn't find or include 'mysql_devapi.h'])])
-AC_LANG_POP([C++])
+#AC_LANG_PUSH([C++])
+#AC_CHECK_HEADER([mysql_devapi.h],,
+#                [AC_MSG_ERROR([Couldn't find or include 'mysql_devapi.h'])])
+#AC_LANG_POP([C++])
 
 # Checks for typedefs, structures, and compiler characteristics.
 
 # Checks for library functions.
 
-# AC_SUBST([SQL_USER], [pupper])
-AC_ARG_VAR([SQL_USER], [The MySQL database user for this application])
-# AC_SUBST([SQL_PASSWORD], [password])
-AC_ARG_VAR([SQL_PASSWORD], [The MySQL database password for this application])
-m4_ifndef([SQL_USER],AC_MSG_WARN([
- No SQL_USER was specified.
- Make sure to add an appropriate SQL username to pupper.xml and pupper.sql]))
-m4_ifndef([SQL_PASSWORD],AC_MSG_WARN([
- No SQL_PASSWORD was specified.
- Make sure to add an appropriate SQL password to pupper.xml and pupper.sql]))
-
+AC_SUBST([SQL_PASSWORD], [Passw0rd1@])
 
 AC_CONFIG_FILES([Makefile pupper.sql pupper.xml])
 AC_OUTPUT
