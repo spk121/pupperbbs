@@ -19,7 +19,11 @@ pupper_SOURCES = app.cpp \
 	PupperLoginForm.hpp PupperLoginForm.cpp \
 	PupperMainMenu.hpp PupperMainMenu.cpp \
 	PupperMessageListMenu.hpp PupperMessageListMenu.cpp \
-	PupperMessageEditor.hpp PupperMessageEditor.cpp
+	PupperMessageEditor.hpp PupperMessageEditor.cpp \
+	PupperTopics.hpp PupperTopics.cpp \
+	PupperTopicMenu.hpp PupperTopicMenu.cpp \
+	properties.hpp properties.cpp \
+	PupperDB.hpp PupperDB.cpp
 pupper_LDADD = -lmysqlcppconn8 -lncurses++w -lncursesw -lformw -lpanelw -lmenuw
 
 sysconf_DATA = pupper.xml

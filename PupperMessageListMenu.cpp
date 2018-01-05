@@ -12,9 +12,10 @@ public:
   }
 };
 
-PupperMessageListMenu::PupperMessageListMenu()
+PupperMessageListMenu::PupperMessageListMenu(int topic_id)
   : NCursesMenu (20, 80, 1, 0)
   , I(0)
+  , topic_id_(topic_id)
 {
   //  Fetch all the messages from the database
   I = new NCursesMenuItem*[2];

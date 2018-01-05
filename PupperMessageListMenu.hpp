@@ -8,9 +8,10 @@ class PupperMessageListMenu : public NCursesMenu
  private:
   NCursesPanel *P;
   NCursesMenuItem** I;
+  int topic_id_;
 
 public:
-  PupperMessageListMenu();
+  PupperMessageListMenu(int topic_id);
 };
 
 #endif

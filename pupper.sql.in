@@ -1,13 +1,56 @@
-CREATE DATABASE IF NOT EXISTS pupper;
+-- *Warning*
+-- This script erases everything!
+
+-- Start with a clean slate
+DROP DATABASE pupper;
+DROP USER IF EXISTS 'pupper'@'localhost';
+
+-- A database and its special operator account
+CREATE DATABASE pupper;
 CREATE USER 'pupper'@'localhost' IDENTIFIED BY '@SQL_PASSWORD@';
 GRANT ALL on pupper.* to 'pupper'@'localhost';
 
 USE pupper;
 
+-- This table only ever has one row.
 CREATE TABLE persistent (id INT, callers INT, quote INT);
+INSERT INTO persistent VALUE (1, 1, 1);
 
+-- All the messages go in here
+CREATE TABLE message (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  sender VARCHAR(12),
+  recipient VARCHAR(12),
+  subject VARCHAR(36),
+  datetime DATETIME,
+  topic TINYINT,                  -- topic is a general category ID
+  message TEXT);                  -- zero or more lines, with newline separating them
+INSERT INTO message VALUE (
+  0, "pupper", "everyone", "Welcome to PupperBBS", NOW(), 1, "Hello, world!"
+);
+
+-- Table of file info for files that can be downloaded
+CREATE TABLE file (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  filename VARCHAR(13),
+  description VARCHAR(40));
+
+-- Random quotes
+CREATE TABLE quotes (
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  quote TEXT NOT NULL);
+
+-- Load in the quotes files.  The quotes are separated by 
+-- lines that just contain %%
+LOAD DATA LOCAL INFILE 'pupper_quotes.txt' INTO TABLE quotes
+  FIELDS TERMINATED BY ''
+  LINES TERMINATED BY '\n%%\n' (quote);
+-- Delete the first 'quote' because it is EMACS modeline junk
+DELETE FROM TABLE quotes WHERE quotes.id = 1;
+
+-- If I implemented proper logins, that info might go here  
 CREATE TABLE caller (
-  id INT,
+  id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
   username VARCHAR(12),
   password VARCHAR(12),
   email VARCHAR(80),
@@ -16,29 +59,7 @@ CREATE TABLE caller (
   date3 DATE,
   date4 DATE,
   topic TINYINT,
-  calls INT,
-  PRIMARY KEY (id));
+  calls INT);
 
-CREATE TABLE message (
-  id INT,
-  sender VARCHAR(12),
-  recipient VARCHAR(12),
-  subject VARCHAR(36),
-  datetime DATETIME,
-  topic TINYINT,
-  message TEXT,
-  PRIMARY KEY (id));
-
-CREATE TABLE file (
-  id INT,
-  filename VARCHAR(13),
-  description VARCHAR(40),
-  PRIMARY KEY (id));
-
-CREATE TABLE quotes (
-  id INT,
-  quote TEXT,
-  PRIMARY KEY (id));
-  
   
 
