@@ -1,10 +1,11 @@
 #include "PupperMessageListMenu.hpp"
+#include <cstring>
 
 class SelectItem: public NCursesMenuItem
 {
 public:
-  SelectItem(const char *str)
-    : NCursesMenuItem(str)
+  SelectItem(const char *key, const char *val)
+    : NCursesMenuItem(key, val)
   {}
 
   bool action() {
@@ -12,15 +13,20 @@ public:
   }
 };
 
-PupperMessageListMenu::PupperMessageListMenu(int topic_id)
+PupperMessageListMenu::PupperMessageListMenu(std::map<int, std::string>& lst)
   : NCursesMenu (20, 80, 1, 0)
   , I(0)
-  , topic_id_(topic_id)
+  , topic_id_(0)
 {
-  //  Fetch all the messages from the database
-  I = new NCursesMenuItem*[2];
-  I[0] = new NCursesMenuItem("1", "A message");
-  I[1] = new NCursesMenuItem(); // Terminator
+
+  I = new NCursesMenuItem*[lst.size() + 1];
+  int i = 0;
+  for(auto x: lst)
+  {
+    std::string key = std::to_string(x.first);
+    I[i++] = new SelectItem(strdup(key.c_str()), strdup(x.second.c_str()));
+  }
+  I[i++] = new NCursesMenuItem(); // Terminator
 
   InitMenu(I, TRUE, TRUE);
   boldframe("Message List");

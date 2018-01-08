@@ -4,7 +4,7 @@
 AC_PREREQ([2.69])
 AC_INIT([pupperbbs], [0.0], [pupperbbs@lonelycactus.com])
 AM_INIT_AUTOMAKE([-Wall foreign])
-AC_CONFIG_SRCDIR([main.cpp])
+AC_CONFIG_SRCDIR([app.cpp])
 AC_CONFIG_MACRO_DIR([m4])
 AC_SUBST([ACLOCAL_AMFLAGS], "-I m4")
 AC_CONFIG_HEADERS([config.h])

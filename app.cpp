@@ -10,6 +10,7 @@
 #include "PupperTopicMenu.hpp"
 #include "properties.hpp"
 #include "PupperDB.hpp"
+#include "PupperMessageViewer.hpp"
 
 class PupperApp : public NCursesApplication
 {
@@ -100,10 +101,22 @@ int PupperApp::run()
 		{
 			#if 1
 			PupperTopicMenu ptm(_ps.topics, lines(_ps.topics), cols(_ps.topics));
-			int topic = ptm()->index();			
-			PupperMessageListMenu messageListMenu(topic);
+			int topic = ptm()->index();
+
+			PupperMessageListMenu messageListMenu(db.getMessageList(topic));
 			NCursesMenuItem *msgItem = messageListMenu();
 			int msg_id = std::stoi(msgItem->name());
+
+			std::string sender = "jeff";
+			std::string recipient = "joe";
+			std::string topicstr = "comedy";
+			std::string subject = "things";
+			std::string text = "I have frinds\nlots of friends";
+			std::string date = "NOW!";
+			bool ret = db.getMessage(msg_id, &sender, &recipient, &subject, &date, &text);
+			PupperMessageViewer pmv(&sender, &recipient, &topicstr, &subject, &text);
+			pmv.refresh();
+			pmv.getch();
 			#endif
 		}
 		else if (x->index() == 1)
@@ -118,6 +131,7 @@ int PupperApp::run()
 				std::string ssubj = pme.getSubject();
 				std::vector<std::string> vtext;
 				pme.getText(vtext);
+				db.insertMessage(name, sto, ssubj, topic, vtext);
 			}
 		}
 #if 0    

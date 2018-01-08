@@ -262,6 +262,55 @@ world, but it was fun to read about.
 
 ## Required algorithms
 
+### Function keys
+
+What have people used function key for, in the past?
+
+*F1* help
+
+*F2* rename file, cut/copy/paste column, rename symbol, split
+
+*F3* search, repeat last command, modify capitalization, end
+
+*F4* close program, move cursor to address bar, repeat last command, return
+
+*F5* refresh, start slide show, open find/replace dialog, start, stop, find 
+
+*F6* jump from desktop to taskbar, focus on address bar, jump between
+menu items and workspace, change, next subwindow
+
+*F7* turn on caret browsing, delete current row, up
+
+*F8* enter start menu, edit cell, goto next warning, down
+
+*F9* compile and run, edit attributes, toggle breakpoint, swap
+
+*F10* jump to menu, update data, step over, left, first menu
+
+*F11* full screen mode, add new sheet or macro, fill column, right
+
+*F12* save as, go to definition, retreive
+
+What are my default function keys, then?
+
+*F1* always unused. It is help on Gnome Terminal. useless
+
+*F3* search
+
+*F4* back or quit action
+
+*F8* jump to main menu
+
+*F9* submit
+
+*F11* unused.  It is fullscreen on Gnome Terminal.
+
+The user theory of fixed function keys: fixed function keys are for
+functions that are continuously available.  Fixed function keys always
+require only one keypress to accomplish a function.  Asignments are
+displayed at all times.  Fixed function keys need to indicate an
+operation immediately after a keypress.
+
 ### Getting user's terminal size
 
 In original Puppy, the user is queried for the number of rows and

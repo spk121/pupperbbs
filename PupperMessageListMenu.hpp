@@ -2,6 +2,8 @@
 #define PUPPER_MESSAGE_LIST_MENU_H
 
 #include <cursesm.h>
+#include <map>
+#include <string>
 
 class PupperMessageListMenu : public NCursesMenu
 {
@@ -11,7 +13,7 @@ class PupperMessageListMenu : public NCursesMenu
   int topic_id_;
 
 public:
-  PupperMessageListMenu(int topic_id);
+  PupperMessageListMenu(std::map<int, std::string>& lst);
 };
 
 #endif

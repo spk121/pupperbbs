@@ -5,10 +5,10 @@
 
 class PupperMainMenu : public NCursesMenu
 {
-  const static int n_items = 5;
+  const static int n_items = 3;
 
  private:
-  NCursesPanel *P;
+  // NCursesPanel *P;
   NCursesMenuItem** I;
 
 public:
