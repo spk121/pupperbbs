@@ -16,6 +16,23 @@ USE pupper;
 CREATE TABLE persistent (id INT, callers INT, quote INT);
 INSERT INTO persistent VALUE (1, 1, 1);
 
+-- The BBS has a few topic categories
+CREATE TABLE topic (
+  id INT NOT NULL PRIMARY KEY,
+  name VARCHAR(12),
+  description VARCHAR(37)
+);
+
+INSERT INTO topic VALUE (
+  1, "DISCUSS", "A place for conversation"
+);
+INSERT INTO topic VALUE (
+  2, "HUMOR", "A place for jokes"
+);
+INSERT INTO topic VALUE (
+  3, "RANT", "A place for venting"
+);
+
 -- All the messages go in here
 CREATE TABLE message (
   id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,

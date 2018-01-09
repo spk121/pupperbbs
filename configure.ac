@@ -7,7 +7,7 @@ AM_INIT_AUTOMAKE([-Wall foreign])
 AC_CONFIG_SRCDIR([app.cpp])
 AC_CONFIG_MACRO_DIR([m4])
 AC_SUBST([ACLOCAL_AMFLAGS], "-I m4")
-AC_CONFIG_HEADERS([config.h])
+# AC_CONFIG_HEADERS([config.h:config.hin])
 
 # Checks for programs.
 AC_PROG_CXX
@@ -28,5 +28,5 @@ PKG_PROG_PKG_CONFIG([1.3.0])
 
 AC_SUBST([SQL_PASSWORD], [Passw0rd1@])
 
-AC_CONFIG_FILES([Makefile pupper.sql pupper.xml])
+AC_CONFIG_FILES([Makefile pupper.sql:pupper.sin pupper.xml:pupper.xin])
 AC_OUTPUT

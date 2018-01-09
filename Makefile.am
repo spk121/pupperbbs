@@ -6,7 +6,8 @@ AM_CXXFLAGS = \
 	-I/usr/local/include/ncursesw \
 	-I/usr/include/mysql \
 	-fdiagnostics-color=auto \
-	-std=c++17
+	-std=c++17 -Wall -Wextra
+
 AM_LDFLAGS = \
 	-L/usr/local/lib \
 	-L/usr/lib64/mysql
@@ -21,15 +22,30 @@ bin_PROGRAMS = pupper
 # 	PupperApp.hpp PupperApp.cpp
 
 pupper_SOURCES = app.cpp \
-	PupperLoginForm.hpp PupperLoginForm.cpp \
-	PupperMainMenu.hpp PupperMainMenu.cpp \
-	PupperMessageListMenu.hpp PupperMessageListMenu.cpp \
-	PupperMessageEditor.hpp PupperMessageEditor.cpp \
-	PupperTopics.hpp PupperTopics.cpp \
-	PupperTopicMenu.hpp PupperTopicMenu.cpp \
-	properties.hpp properties.cpp \
-	PupperDB.hpp PupperDB.cpp \
-	PupperMessageViewer.hpp PupperMessageViewer.cpp 
+	login.hpp login.cpp \
+	form.hpp form.cpp \
+	mainmenu.hpp mainmenu.cpp \
+	msglist.hpp msglist.cpp \
+	editor.hpp editor.cpp \
+	topic.hpp topic.cpp \
+	topicmnu.hpp topicmnu.cpp \
+	prop.hpp prop.cpp \
+	db.hpp db.cpp \
+	viewer.hpp viewer.cpp \
+	message.hpp message.cpp
+
+BUILT_SOURCES = login.hpp.gch \
+	mainmenu.hpp.gch \
+	msglist.hpp.gch \
+	editor.hpp.gch \
+	topicmnu.hpp.gch \
+	prop.hpp.gch \
+	db.hpp.gch \
+	viewer.hpp.gch
+
+%.hpp.gch: %.hpp
+	$(CXX) $(CFLAGS) $(CXXFLAGS) $(AM_CFLAGS) $(AM_CXXFLAGS) -c $<
+
 pupper_LDADD = -lmysqlclient -lpthread -lm -lrt -ldl \
 	-lncurses++w -lncursesw -lformw -lpanelw -lmenuw
 
@@ -38,3 +54,6 @@ pupper_LDADD = -lmysqlclient -lpthread -lm -lrt -ldl \
 sysconf_DATA = pupper.xml
 
 EXTRA_DIST = pupper.xml.in pupper.sql.in
+CLEANFILES = $(BUILT_SOURCES)
+include $(top_srcdir)/flymake.mk
+

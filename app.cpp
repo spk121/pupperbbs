@@ -1,21 +1,25 @@
+// -*- whitespace-line-column: 132; indent-tabs-mode: t; c-file-style: "stroustrup"; tab-width: 4;  -*-
 #include <cursesapp.h>
 #include <cursesf.h>
 #include <cstring>
 #include <unistd.h>
 
-#include "PupperLoginForm.hpp"
-#include "PupperMainMenu.hpp"
-#include "PupperMessageListMenu.hpp"
-#include "PupperMessageEditor.hpp"
-#include "PupperTopicMenu.hpp"
-#include "properties.hpp"
-#include "PupperDB.hpp"
-#include "PupperMessageViewer.hpp"
+#include "login.hpp"
+#include "mainmenu.hpp"
+#include "msglist.hpp"
+#include "editor.hpp"
+#include "topicmnu.hpp"
+#include "prop.hpp"
+#include "db.hpp"
+#include "viewer.hpp"
+#include "topic.hpp"
 
 class PupperApp : public NCursesApplication
 {
-private:
-	pup_static _ps;
+public:
+	PupperApp()
+		: NCursesApplication{TRUE} {}
+	int run();
 
 protected:
 	int titlesize() const { return 1; }
@@ -23,14 +27,6 @@ protected:
 	Soft_Label_Key_Set::Label_Layout useSLKs() const {
 		return Soft_Label_Key_Set::Four_Four;
 	}
-	void init_labels(Soft_Label_Key_Set& S) const;
-
-public:
-	PupperApp() : NCursesApplication(TRUE) {
-		_ps.load("pupper.xml");
-	}
-
-	int run();
 };
 
 PupperApp *getApplication()
@@ -48,77 +44,88 @@ void PupperApp::title()
 	titleWindow->noutrefresh();
 }
 
-void PupperApp::init_labels(Soft_Label_Key_Set& S) const
-{
-	// Weirdly, if you set a SLK equal to a string, that sets the label,
-	// but if you set it equal to a Justification, it sets the
-	// justification.
-
-	// When you set SLK equal to a string, it copies the string and
-	// manages its lifetime.
-	S[7] = "F7 Quit";
-}
-
-enum class Action {
-	Quit
-};
-
 int PupperApp::run()
 {
-	// Database
-	PupperDB db(_ps.db_password);
+	Pup_static _ps;
+	PupperDB db;
 
-
-	if (!db.ready) {
-		move(1,1);
-		addstr(db.errstr.c_str());
-		refresh();
-		usleep(1000000);
+	try {
+		_ps.load("pupper.xml");
+		db.connect(_ps.db_password);
 	}
-
-	int c = db.getAndIncrementCallerCount();
-	int c2 = db.getAndIncrementCallerCount();
+	catch (const std::runtime_error &e) {
+		Root_Window->addstr(0, 0, e.what());
+		refresh();
+		usleep(2000000);
+		endwin();
+		return 1;
+	}
 
 	// Login
 	std::string name;
-	{
-		PupperLoginForm loginForm;
-		name = loginForm.getUserName();
-	}
 
+at_login:
+	{
+		Login loginForm;
+		loginForm();
+		name = loginForm.get_user_name();
+	}
 
 	if (name.empty())
 		return 0;
 
+	int c = db.getAndIncrementCallerCount();
+
 	// Main Loop
 	{
 		PupperMainMenu mainMenu;
-		NCursesMenuItem *x = mainMenu();
-		
-		if(x->index() == 4)
+
+	at_main_menu:
+		mainMenu();
+
+		if(mainMenu.is_quit())
 			goto cleanup;
-		else if (x->index() == 0)
+
+		else if (mainMenu.is_read())
 		{
-			#if 1
-			PupperTopicMenu ptm(_ps.topics, lines(_ps.topics), cols(_ps.topics));
-			int topic = ptm()->index();
+			Topics topics = db.get_topics();
 
-			PupperMessageListMenu messageListMenu(db.getMessageList(topic));
-			NCursesMenuItem *msgItem = messageListMenu();
-			int msg_id = std::stoi(msgItem->name());
-
-			std::string sender = "jeff";
-			std::string recipient = "joe";
-			std::string topicstr = "comedy";
-			std::string subject = "things";
-			std::string text = "I have frinds\nlots of friends";
-			std::string date = "NOW!";
-			bool ret = db.getMessage(msg_id, &sender, &recipient, &subject, &date, &text);
-			PupperMessageViewer pmv(&sender, &recipient, &topicstr, &subject, &text);
-			pmv.refresh();
-			pmv.getch();
-			#endif
+			PupperTopicMenu ptm(topics);
+			ptm();
+			if (ptm.is_quit())
+				goto at_main_menu;
+			auto msg_headers = db.get_message_headers_list(ptm.get_topic_id());
+			PupperMessageListMenu mlm{msg_headers};
+			mlm();
+			int msg_id = mlm.get_msg_id();
 		}
+	}
+#if 0
+
+
+
+	mlm();
+	int msg_id = mlm.get_msg_id();
+
+	Message message = db.get_message(msg_id);
+
+	PupperMessageViewer pmv{message];
+	pmv();
+
+	if (pmv.is_quit())
+		return 0;
+	else if (pmv.is_prev())
+		;
+	else if (pmv.is_next())
+		;
+	else if (pmv.is_main_menu())
+		;
+	else if (pmv.is_back())
+		continue;
+}
+
+}
+
 		else if (x->index() == 1)
 		{
 			PupperTopicMenu ptm(_ps.topics, lines(_ps.topics), cols(_ps.topics));
@@ -134,54 +141,56 @@ int PupperApp::run()
 				db.insertMessage(name, sto, ssubj, topic, vtext);
 			}
 		}
-#if 0    
-		PupperTopicMenu topicMenu;
-		PupperMessageListMenu messageListMenu;
-		PupperMessageDisplay messageDisplay;
-	loop:
-		Action a = mainMenu.getAction();
-		if (a == Action::Quit)
-			return 0;
-#endif
-		refresh();
-#if 0    
-		else if (action == ACTION_READ_MESSAGES)
-			{
+
+PupperTopicMenu topicMenu;
+PupperMessageListMenu messageListMenu;
+PupperMessageDisplay messageDisplay;
+loop:
+Action a = mainMenu.getAction();
+if (a == Action::Quit)
+	return 0;
+
+refresh();
+
+else if (action == ACTION_READ_MESSAGES)
+{
 	int topic = topicMenu.getTopic();
 	if (topic < 0)
 		goto loop;
-			loop2:
+loop2:
 	int msg_id = messageListmenu(topic);
 	if (msg_id < 0)
 		goto loop;
 	messageDisplay.show(msg_id);
 	goto loop2;
-			}
-		else if (action == ACTION_WRITE_MESSAGE)
-			{
+}
+else if (action == ACTION_WRITE_MESSAGE)
+{
 	messageEditor.go();
 	goto loop;
-			}
-		else if (action == ACTION_DOWNLOAD)
-			{
-			loop3:
+}
+else if (action == ACTION_DOWNLOAD)
+{
+loop3:
 	std::string fname = fileDownloadList.go();
 	if (fname.empty())
 		goto loop;
 	fileDownload.go(fname);
 	goto loop3;
-			}
-		else if (action == ACTION_UPLOAD)
-			{
+}
+else if (action == ACTION_UPLOAD)
+{
 	fileUploader.go();
 	goto loop;
-			}
+}
+}
 #endif
-	}
+
+
 
 cleanup:
-	usleep(10000000);
-	return 0;
+usleep(10000000);
+return 0;
 }
 
 static PupperApp *app = new PupperApp();

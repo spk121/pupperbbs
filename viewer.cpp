@@ -1,6 +1,5 @@
-#include "PupperMessageViewer.hpp"
 #include <cursesw.h>
-
+#include "viewer.hpp"
 
 PupperMessageViewer::PupperMessageViewer(string* from, string* to, string* topic, string* subject, string* text)
 	: NCursesWindow(20, 78, 1, 1)

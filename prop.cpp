@@ -4,18 +4,17 @@
 #include <set>
 #include <exception>
 #include <iostream>
-#include "properties.hpp"
+#include "prop.hpp"
 namespace pt = boost::property_tree;
 
-void pup_static::load(const std::string &filename)
+void Pup_static::load(const std::string &filename)
 {
 	// Create empty property tree object
 	pt::ptree tree;
 
 	// Parse the XML into the property tree.
-	try {
-		pt::read_xml(filename, tree);
-	} catch(...){};
+	// This can throw.
+	pt::read_xml(filename, tree);
 
 	open_msg_filename = tree.get("puppy.open-msg-filename", "puppermsg.txt");
 	db_password = tree.get("puppy.db-password", "invalid_password");
@@ -28,6 +27,7 @@ void pup_static::load(const std::string &filename)
 	callsize = tree.get("puppy.callers", 25);
 	filepref = tree.get("puppy.file-prefix", "files/");
 
+#if 0
 	pt::ptree subtree = tree.get_child("puppy.topics");
 	for (auto z = subtree.begin(); z != subtree.end(); ++z)
 	{
@@ -37,4 +37,5 @@ void pup_static::load(const std::string &filename)
 	}
 	if (topics.empty())
 		topics.push_back(PupperTopic{"generic","everything"});
+#endif
 }

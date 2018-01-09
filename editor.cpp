@@ -1,4 +1,4 @@
-#include "PupperMessageEditor.hpp"
+#include "editor.hpp"
 #include <cursesapp.h>
 #include <boost/algorithm/string/trim.hpp>
 #include <vector>

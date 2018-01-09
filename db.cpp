@@ -1,4 +1,4 @@
-#include "PupperDB.hpp"
+#include "db.hpp"
 #include <sstream>
 #include <boost/format.hpp>
 #include <map>
@@ -6,28 +6,96 @@
 std::map<int, std::string> messageList;
 
 
-PupperDB::PupperDB(std::string db_password)
-    : ready(false)
-    , errstr()
+PupperDB::PupperDB()
+    : mysql_{nullptr}
 {
     mysql_ = mysql_init(NULL);
-    if (mysql_ == NULL) {
-        errstr = "mysql_init(): out of memory";
-        ready = false;
-        return;
-    }
-    MYSQL *ret = mysql_real_connect(mysql_, NULL, "pupper", db_password.c_str(), "pupper", 0, NULL, 0);
-    if (ret == NULL) {
-        errstr = mysql_error(mysql_);
-        ready = false;
-        return;
-    }
-    ready = true;
+    if (mysql_ == NULL)
+        throw new std::runtime_error("out of memory");
 }
 
 PupperDB::~PupperDB()
 {
     mysql_close(mysql_);
+}
+
+void PupperDB::connect(std::string password)
+{
+    MYSQL *ret = mysql_real_connect(mysql_, NULL, "pupper", password.c_str(), "pupper", 0, NULL, 0);
+    if (ret == NULL)
+        throw new std::runtime_error(mysql_error(mysql_));
+}
+
+Topics PupperDB::get_topics()
+{
+    int ret = mysql_query(mysql_, "SELECT id, name, description FROM topic;");
+    if (ret != 0)
+        throw new std::runtime_error(mysql_error(mysql_));
+
+     // The query worked, so let's make a message list
+    MYSQL_RES* result = mysql_store_result(mysql_);
+    if (result == nullptr) {
+        if (mysql_errno(mysql_) != 0)
+            throw new std::runtime_error(mysql_error(mysql_));
+        else
+            return Topics();
+    }
+
+    if (mysql_num_fields(result) != 3) {
+        mysql_free_result(result);
+        throw new std::runtime_error("the topics database doesn't have 3 columns");
+    }
+
+    Topics T;
+    MYSQL_ROW row;
+    while ((row = mysql_fetch_row(result))) {
+        int id = std::stoi(row[0]);
+        std::string name{row[1]};
+        std::string description{row[2]};
+        T.emplace_back(id, name, description);
+    }
+    mysql_free_result(result);
+    return T;
+}
+
+// Get all the messages for a given topic, but don't store the text
+// of the messages.
+std::vector<Message> PupperDB::get_message_headers_list(int topic_id)
+{
+    std::stringstream request;
+    request << "SELECT id, sender, recipient, subject, datetime FROM message WHERE topic=" << topic_id << ";";
+    int ret = mysql_query(mysql_, request.str().c_str());
+    if (ret != 0)
+        throw new std::runtime_error(mysql_error(mysql_));
+
+     // The query worked, so let's make a message header list
+    MYSQL_RES* result = mysql_store_result(mysql_);
+    if (result == nullptr) {
+        if (mysql_errno(mysql_) != 0)
+            throw new std::runtime_error(mysql_error(mysql_));
+        else
+            return std::vector<Message>();
+    }
+   
+    if (mysql_num_fields(result) != 5) {
+        mysql_free_result(result);
+        throw new std::runtime_error("the message header response doesn't have 5 columns");
+    }
+
+    std::vector<Message> M;
+    MYSQL_ROW row;
+    while ((row = mysql_fetch_row(result))) {
+        int id = std::stoi(row[0]);
+        std::string sender{row[1]};
+        std::string recipient{row[2]};
+        std::string subject{row[3]};
+        std::string datestr{row[4]};
+        std::vector<std::string> empty_text;
+   
+        M.emplace_back(id, sender, recipient, topic_id, subject, empty_text);
+    }
+    mysql_free_result(result);
+    return M;    
 }
 
 int PupperDB::getAndIncrementCallerCount()
@@ -41,8 +109,9 @@ int PupperDB::getAndIncrementCallerCount()
         return -1;
 
     MYSQL_ROW row = mysql_fetch_row(result);
-
     int callers =  std::stoi(row[0]);
+    mysql_free_result(result);
+
     std::stringstream query;
     query << "UPDATE persistent SET callers=" << std::to_string(callers+1) << " WHERE id=1;";
     mysql_query(mysql_, query.str().c_str());
@@ -115,7 +184,8 @@ int PupperDB::insertMessage(std::string& from, std::string& to, std::string& sub
     return 0;
 }
 
-std::map<int, std::string>& PupperDB::getMessageList(int topic_id)
+#if 0
+std::map<int, std::string>& PupperDB::get_message_headers_list(int topic_id)
 {
     std::stringstream request;
     MYSQL_RES *result;
@@ -164,6 +234,7 @@ std::map<int, std::string>& PupperDB::getMessageList(int topic_id)
 
     return messageList;
 }
+#endif
 
 bool PupperDB::getMessage(int msg_id, string* from, string* to, string* subject, string* date, string* text)
 {
