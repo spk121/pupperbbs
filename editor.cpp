@@ -1,3 +1,4 @@
+// -*- whitespace-line-column: 132; indent-tabs-mode: t; c-file-style: "stroustrup"; tab-width: 4;  -*-
 #include "editor.hpp"
 #include <cursesapp.h>
 #include <boost/algorithm/string/trim.hpp>
@@ -20,10 +21,10 @@ public:
 
 
 PupperMessageEditor::PupperMessageEditor()
-    : NCursesForm(fields_, EDITOR_LINES + 6, EDITOR_COLUMNS + 2, 1, 1)
-    , fields_(nullptr)
-    , slks_(Soft_Label_Key_Set::Four_Four)
-    , b_submit(FALSE)
+	: NCursesForm{EDITOR_LINES + 6, EDITOR_COLUMNS + 2, 1, 1}
+	, fields_(nullptr)
+	, slks_(Soft_Label_Key_Set::Four_Four)
+	, b_submit(FALSE)
 {
     fields_ = new NCursesFormField*[8];
 
@@ -36,7 +37,7 @@ PupperMessageEditor::PupperMessageEditor()
     fields_[3] = new NCursesFormField(1, 36, 2, 10);
 
     // Some text
-    fields_[4] = new LabelFormField("Press <f7> to quit", 0, 55);
+    fields_[4] = new LabelFormField("Press <f4> to quit", 0, 55);
     fields_[5] = new LabelFormField("Press <f8> to save", 1, 55);
 
     // multiline text entry
@@ -52,11 +53,7 @@ PupperMessageEditor::PupperMessageEditor()
 
     // Set up some new edit soft keys
     slks_[1] = "";
-    slks_[2] = "F2 Spell";
-    slks_[3] = "F3 Fill";
-    slks_[4] = "F4 Indnt";
-    slks_[6] = "F6 Centr";
-    slks_[7] = "F7 Quit";
+    slks_[4] = "F4 Quit";
     slks_[8] = "F8 Save";
     NCursesApplication::getApplication()->push(slks_);
 
@@ -67,21 +64,12 @@ static const int CMD_ACTION = MAX_COMMAND + 2;
 
 int PupperMessageEditor::virtualize(int c)
 {
-#if 1
-    if (c == KEY_F(2))
-        return CMD_ACTION;
-    if (c == KEY_F(3))
-        return CMD_ACTION;
     if (c == KEY_F(4))
-        return CMD_ACTION;
-    if (c == KEY_F(6))
-        return CMD_ACTION;    
-    if (c == KEY_F(7))
     {
         b_submit = FALSE;
         return CMD_QUIT;
     }
-    if (c == KEY_F(8))
+    else if (c == KEY_F(8))
     {
         b_submit = TRUE;
         // The following command ensures that all cached keypresses
@@ -89,32 +77,18 @@ int PupperMessageEditor::virtualize(int c)
         ::form_driver(form, REQ_LAST_FIELD);
         return CMD_QUIT;
     }
-#endif
     return NCursesForm::virtualize(c);
 }
 
-void PupperMessageEditor::On_Unknown_Command(int c) const
+bool PupperMessageEditor::is_quit()
 {
-#if 0
-    int action;
-    if (c == KEY_F(2))
-        action = CMD_SPELL;
-    else if (c == KEY_F(3))
-        action = CMD_FILL;
-    else if (c == KEY_F(4))
-        action = CMD_INDENT;
-    else if (c == KEY_F(6))
-        action = CMD_CENTER;    
-    else
-#endif    
-        NCursesForm::On_Unknown_Command(c);
+	return !b_submit;
 }
-
 std::string PupperMessageEditor::getTo()
 {
     NCursesFormField* field = fields_[1];
     std::string s(field->value());
-    boost::algorithm::trim(s);    
+    boost::algorithm::trim(s);
     return s;
 }
 

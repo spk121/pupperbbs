@@ -1,23 +1,19 @@
+// -*- whitespace-line-column: 132; indent-tabs-mode: t; c-file-style: "stroustrup"; tab-width: 4;  -*-
 #ifndef PUPPER_MESSAGE_VIEWER_HPP
 #define PUPPER_MESSAGE_VIEWER_HPP
 
 #include <string>
-#include <cursesw.h>
-using namespace std;
+#include <vector>
+#include <cursesp.h>
+#include "message.hpp"
 
-class PupperMessageViewer : public NCursesWindow
+class PupperMessageViewer : public NCursesPanel
 {
-private:
-    string* from_;
-    string* to_;
-    string* topic_;
-    string* subject_;
-    string* text_;
-
-    void render_text(int ystart, int xstart, string* text);
 public:
-    PupperMessageViewer(string* from, string* to, string* topic, string* subject, string* text);
-    
+	PupperMessageViewer(Message &msg);
+	void go();
+private:	
+    void render_text(int ystart, int xstart, std::vector<std::string>& text);
 };
 
 #endif

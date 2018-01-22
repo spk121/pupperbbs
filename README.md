@@ -1,4 +1,4 @@
-# puppybbs
+# pupperbbs
 This is a minimalist telnet BBS.
 
 It is pre-alpha, does not function.
@@ -8,13 +8,18 @@ exists out there, but, I don't have a modem any more. But, there is
 such a thing as a BBS over Telnet.  I thought I would write one.
 
 When complete, this should allow one to post to a message board, and to
-download files via XMODEM or maybe ZMODEM.
+download files via ZMODEM.
 
 ## License
 
-If I use MySQL Connector, which is GPL2, then this must be GPL2.
+Libzmodem is GPL2+.
 
-So GPL2.  Pity I can't make it GPL3+.
+Ncurses is BSD.
+
+The libmysqld client library is LGPL.
+
+So the resultant program is GPL2+.
+
 
 ## THE FINISHING THINGS MANIFESTO
 
@@ -32,7 +37,7 @@ So GPL2.  Pity I can't make it GPL3+.
 * I will just accept that GNU Autotools for GNU/Linux and MSBuild on
   Windows are the best available build tools.
 
-## Puppy's internal databases
+## Pupper's internal databases
 
 When thinking about how to set up the databases, I am using as
 inspiration a much older BBS called Puppy BBS.
@@ -226,9 +231,9 @@ console and a user on the modem.
 
 ### inetd-style application on my Fedora Server GNU/Linux box
 
-This is obviously the simplest.  With each new client connection, a
-new instance of the application is spawned.  The TCP I/O is converted
-to stdin/stdout I/O by the inetd (or systemd) server.
+This is obviously the simplest.  With each new client connection, a new
+instance of the application is spawned.  The TCP I/O is converted to
+stdin/stdout I/O by the inetd (or systemd) server.
 
 The challenge here is that there needs to be file locking of the
 database files, since multiple instantiations of the PupperBBS
@@ -262,7 +267,24 @@ world, but it was fun to read about.
 
 ## Required algorithms
 
+### Terminfo and Terminals and Capabilities
+
+According to this pretty bad Wikipedia page, `PuTTY` and `Konsole` can
+do `TERM=xterm`, and `gnome-terminal` can do `TERM=xterm-256colors`.
+
+The `TERM=xterm` `terminfo` lists 8 colors and 64 color pairs, with no
+color modification.  Lame.  Whatever.  In the spirit of the *FINISHING
+THINGS MANIFESTO*, I will not try to do more than that.
+
+Hmm. Function keys seem pretty dodgy.  The old `xterm-r6` used a
+different and incompatible set of function keys.
+
+If I ever decide to get rid of function keys, consider using
+`TERM=xterm-basic` which is basically just `xterm` without function keys
+
 ### Function keys
+
+If I use `TERM=xterm` I get all the function keys.
 
 What have people used function key for, in the past?
 
@@ -361,7 +383,10 @@ terminal over telnet.
     including the underdocumented C++ bindings
 -   Boost [documentation](http://www.boost.org/doc/libs/1_66_0/) and
     [code](https://dl.bintray.com/boostorg/release/1.66.0/source/)
--   lrzsz (GPL2)
+-   libzmodem (GPL2+)
+    [documentation and code](https://github.com/spk121/libzmodem). A
+	remix of lrzsz as a library.
+-   lrzsz (GPL2+)
     [documentation and code](https://ohse.de/uwe/software/lrzsz.html), but
     see jnavila's patched version on
     [github](https://github.com/jnavila/lrzsz)

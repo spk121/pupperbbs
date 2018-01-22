@@ -12,6 +12,9 @@ public:
 	~PupperMainMenu();
 	NCursesMenuItem* operator()(void) override;
 	bool is_read();
+	bool is_write();
+	bool is_upload();
+	bool is_download();
 	bool is_quit();
 
 private:

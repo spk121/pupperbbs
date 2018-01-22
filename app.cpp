@@ -13,6 +13,8 @@
 #include "db.hpp"
 #include "viewer.hpp"
 #include "topic.hpp"
+#include "pfile.hpp"
+#include "filemenu.hpp"
 
 class PupperApp : public NCursesApplication
 {
@@ -86,8 +88,7 @@ at_login:
 		if(mainMenu.is_quit())
 			goto cleanup;
 
-		else if (mainMenu.is_read())
-		{
+		else if (mainMenu.is_read() || mainMenu.is_write()) {
 			Topics topics = db.get_topics();
 
 			PupperTopicMenu ptm(topics);
@@ -95,102 +96,78 @@ at_login:
 			if (ptm.is_quit())
 				goto at_main_menu;
 			auto msg_headers = db.get_message_headers_list(ptm.get_topic_id());
-			PupperMessageListMenu mlm{msg_headers};
-			mlm();
-			int msg_id = mlm.get_msg_id();
-		}
-	}
-#if 0
-
-
-
-	mlm();
-	int msg_id = mlm.get_msg_id();
-
-	Message message = db.get_message(msg_id);
-
-	PupperMessageViewer pmv{message];
-	pmv();
-
-	if (pmv.is_quit())
-		return 0;
-	else if (pmv.is_prev())
-		;
-	else if (pmv.is_next())
-		;
-	else if (pmv.is_main_menu())
-		;
-	else if (pmv.is_back())
-		continue;
-}
-
-}
-
-		else if (x->index() == 1)
-		{
-			PupperTopicMenu ptm(_ps.topics, lines(_ps.topics), cols(_ps.topics));
-			int topic = ptm()->index();
-			PupperMessageEditor pme;
-			pme();
-			if (pme.b_submit)
-			{
+			if (mainMenu.is_read()) {
+				PupperMessageListMenu mlm{msg_headers};
+				mlm();
+				if (mlm.is_quit())
+					goto at_main_menu;
+				int msg_id = mlm.get_msg_id();
+				Message msg = db.get_message(msg_id);
+				PupperMessageViewer pmv{msg};
+				pmv.go();
+			}
+			else {
+				PupperMessageEditor pme;
+				pme();
+				if (pme.is_quit())
+					goto at_main_menu;
 				std::string sto = pme.getTo();
 				std::string ssubj = pme.getSubject();
 				std::vector<std::string> vtext;
 				pme.getText(vtext);
-				db.insertMessage(name, sto, ssubj, topic, vtext);
+				db.insertMessage(name, sto, ssubj, ptm.get_topic_id(), vtext);
 			}
+			goto at_main_menu;
 		}
-
-PupperTopicMenu topicMenu;
-PupperMessageListMenu messageListMenu;
-PupperMessageDisplay messageDisplay;
-loop:
-Action a = mainMenu.getAction();
-if (a == Action::Quit)
-	return 0;
-
-refresh();
-
-else if (action == ACTION_READ_MESSAGES)
-{
-	int topic = topicMenu.getTopic();
-	if (topic < 0)
-		goto loop;
-loop2:
-	int msg_id = messageListmenu(topic);
-	if (msg_id < 0)
-		goto loop;
-	messageDisplay.show(msg_id);
-	goto loop2;
-}
-else if (action == ACTION_WRITE_MESSAGE)
-{
-	messageEditor.go();
-	goto loop;
-}
-else if (action == ACTION_DOWNLOAD)
-{
-loop3:
-	std::string fname = fileDownloadList.go();
-	if (fname.empty())
-		goto loop;
-	fileDownload.go(fname);
-	goto loop3;
-}
-else if (action == ACTION_UPLOAD)
-{
-	fileUploader.go();
-	goto loop;
-}
-}
-#endif
-
-
-
+		else if (mainMenu.is_download()) {
+			std::vector<Pfile> pfiles = db.get_file_list();
+			if (pfiles.size() == 0) {
+				Pfile tmp = {0, "xxx", "NO FILES AVAILABLE TO DOWNLOAD"};
+				pfiles.push_back(tmp);
+			}
+			PupperFileMenu pfm(pfiles);
+			pfm();
+			//if (pfiles.size() == 0)
+			//	goto at_main_menu;
+			int file_id = pfm.get_file_id();
+			Root_Window->addstr(3,3, "Sending file by ZMODEM now");
+			refresh();
+			usleep(1000000);
+			Root_Window->addstr(3,3, "Complete!                 ");
+			refresh();
+			usleep(1000000);
+			Root_Window->addstr(3,3, "                          ");
+			refresh();
+			goto at_main_menu;
+		}
+		else if (mainMenu.is_upload()) {
+			PupperUploadForm puf;
+		at_upload_form:
+			puf();
+			if (puf.is_quit())
+				goto at_main_menu;
+			std::string name = puf.get_name();
+			std::string desc = puf.get_desc();
+			if (!db.is_filename_unused(name)) {
+				Root_Window->addstr(3,3, "There is already a file by that name");
+				refresh();
+				usleep(1000000);
+				goto at_upload_form;
+			}
+			Root_Window->addstr(3,3, "Waiting to receive by ZMODEM now");
+			refresh();
+			usleep(1000000);
+			Root_Window->addstr(3,3, "Complete!                       ");
+			refresh();
+			usleep(1000000);
+			Root_Window->addstr(3,3, "                                ");
+			refresh();
+			goto at_main_menu;
+		}
+	}
 cleanup:
-usleep(10000000);
-return 0;
+	usleep(100);
+	return 0;
 }
 
 static PupperApp *app = new PupperApp();

@@ -32,7 +32,9 @@ pupper_SOURCES = app.cpp \
 	prop.hpp prop.cpp \
 	db.hpp db.cpp \
 	viewer.hpp viewer.cpp \
-	message.hpp message.cpp
+	message.hpp message.cpp \
+	pfile.hpp pfile.cpp \
+	filemenu.hpp filemenu.cpp
 
 BUILT_SOURCES = login.hpp.gch \
 	mainmenu.hpp.gch \

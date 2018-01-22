@@ -1,3 +1,4 @@
+// -*- whitespace-line-column: 132; indent-tabs-mode: t; c-file-style: "stroustrup"; tab-width: 4;  -*-
 #ifndef PUPPER_MESSAGE_HPPP
 #define PUPPER_MESSAGE_HPPP
 
@@ -5,6 +6,7 @@
 #include <vector>
 
 struct Message {
+	Message();
     Message(int& _id,
         std::string& _sender, std::string& _recipient,
         int& _topic_id, std::string& _subject, std::vector<std::string>& _text);

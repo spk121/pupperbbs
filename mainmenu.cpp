@@ -47,7 +47,7 @@ NCursesMenuItem* PupperMainMenu::operator()(void)
 	free (label4);
 	NCursesApplication::getApplication()->push(slks_);
 
-	NCursesMenu::operator()();
+	return NCursesMenu::operator()();
 }
 
 static const int CMD_QUIT   = MAX_COMMAND + 1;
@@ -61,10 +61,24 @@ int PupperMainMenu::virtualize(int c)
 	return NCursesMenu::virtualize(c);
 }
 
-
 bool PupperMainMenu::is_read()
 {
-	return current_item()->index() == 0;
+	return !quit_ && current_item()->index() == 0;
+}
+
+bool PupperMainMenu::is_write()
+{
+	return !quit_ && current_item()->index() == 1;
+}
+
+bool PupperMainMenu::is_upload()
+{
+	return !quit_ && current_item()->index() == 3;
+}
+
+bool PupperMainMenu::is_download()
+{
+	return !quit_ && current_item()->index() == 2;
 }
 
 bool PupperMainMenu::is_quit()

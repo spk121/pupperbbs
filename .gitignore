@@ -16,6 +16,9 @@ Makefile.in
 /aclocal.m4
 /compile
 /config.guess
+/config.cache
+/config.log
+/config.status
 /config.h.in
 /config.sub
 /configure
