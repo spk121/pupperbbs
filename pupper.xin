@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<puppy>
+<pupper>
   <db-user>pupper</db-user>
   <db-password>@SQL_PASSWORD@</db-password>
   <time-limit>60</time-limit>
@@ -10,14 +10,4 @@
   <message-size>2560</message-size>
   <callers>25</callers>
   <file-prefix>files/</file-prefix>
-  <topics>
-    <topic>
-      <name>JUMK</name>
-      <desc>miscellany</desc>
-    </topic>
-    <topic>
-      <name>STUFF</name>
-      <desc>miscellany</desc>
-    </topic>
-  </topics>
-</puppy>
+</pupper>

@@ -3,6 +3,11 @@
 #include <cursesf.h>
 #include <cstring>
 #include <unistd.h>
+#include <map>
+#include <string>
+extern "C" {
+#include <zmodem.h>
+};
 
 #include "login.hpp"
 #include "mainmenu.hpp"
@@ -15,6 +20,107 @@
 #include "topic.hpp"
 #include "pfile.hpp"
 #include "filemenu.hpp"
+
+std::map<std::string, int> download;
+#define DL_DOWNLOAD_COMPLETE 0
+#define DL_FILENAME_TOO_LONG 1
+#define DL_FILENAME_INVALID 2
+#define DL_FILE_SIZE_TOO_LARGE 3
+#define DL_FILE_SIZE_TOO_SMALL 4
+#define DL_FILE_EXISTS 5
+#define DL_TIME_TOO_FAR_IN_FUTURE 6
+#define DL_TIME_TOO_FAR_IN_PAST 7
+#define DL_DOWNLOAD_INCOMPLETE 8
+
+PupperDB *pdb;
+
+
+static bool
+approver_cb(const char *filename, size_t size, time_t date)
+{
+	// Empty filenames
+	if (filename == NULL || strlen(filename) == 0)
+		return false;
+
+	// Duplicate filenames
+	if (download.find(filename) != download.end())
+		return false;
+
+	// Invalid filenames
+	if (strlen(filename) > 13) {
+		download.emplace(filename, DL_FILENAME_TOO_LONG);
+		return false;
+	}
+
+	size_t spnsz
+		= strspn(filename,
+				 "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwzyz0123456789!#$%&'()-@^_`{}~.");
+
+	if (spnsz < strlen(filename) || filename[0] == '.') {
+		download.emplace(filename, DL_FILENAME_INVALID);
+		return false;
+	}
+
+	int dotcount = 0;
+	for (size_t i = 0; i < strlen(filename); i ++) {
+		if (filename[i] == '.')
+			dotcount ++;
+	}
+	if (dotcount > 1) {
+		download.emplace(filename, DL_FILENAME_INVALID);
+		return false;
+	}
+
+	if (size > 0xFFFF) {
+		download.emplace(filename, DL_FILE_SIZE_TOO_LARGE);
+		return false;
+	}
+
+	if (size < 0xF) {
+		download.emplace(filename, DL_FILE_SIZE_TOO_SMALL);
+		return false;
+	}
+
+	std::string fnamestr = filename;
+	if (pdb->pfile_exists(fnamestr)) {
+		download.emplace(filename, DL_FILE_EXISTS);
+		return false;
+	}
+	time_t tm = time(NULL);
+	if (tm != (time_t)(-1) && date > tm + 24*60*60) {
+		download.emplace(filename, DL_TIME_TOO_FAR_IN_FUTURE);
+		return false;
+	}
+
+	if (date < 2) {
+		download.emplace(filename, DL_TIME_TOO_FAR_IN_PAST);
+		return false;
+	}
+
+	// No more than 14 files at a time
+	if (download.size() > 14)
+		return false;
+
+	download.emplace(filename, DL_DOWNLOAD_INCOMPLETE);
+	return true;
+}
+
+static
+bool tick_cb(const char *fname, long bytes_sent, long bytes_total, long last_bps, int min_left, int sec_left)
+{
+	if (min_left > 10)
+		return false;
+	return true;
+  return true;
+}
+
+static void
+complete_cb(const char *filename, int result, size_t size, time_t date)
+{
+  if (result == RZSZ_NO_ERROR)
+	  download[filename] = DL_DOWNLOAD_COMPLETE;
+}
+
 
 class PupperApp : public NCursesApplication
 {
@@ -50,6 +156,7 @@ int PupperApp::run()
 {
 	Pup_static _ps;
 	PupperDB db;
+	pdb = &db;
 
 	try {
 		_ps.load("pupper.xml");
@@ -131,6 +238,13 @@ at_login:
 			//	goto at_main_menu;
 			int file_id = pfm.get_file_id();
 			Root_Window->addstr(3,3, "Sending file by ZMODEM now");
+			// Here we kick off a zmodem sender process for the given
+			// file.
+
+			// There can't be anything written to stdout because it would
+			// interfere with the zmodem process.
+
+			// Display a message when complete.
 			refresh();
 			usleep(1000000);
 			Root_Window->addstr(3,3, "Complete!                 ");
@@ -141,7 +255,8 @@ at_login:
 			goto at_main_menu;
 		}
 		else if (mainMenu.is_upload()) {
-			PupperUploadForm puf;
+#if 0
+			PupperUploadForm ppuf;
 		at_upload_form:
 			puf();
 			if (puf.is_quit())
@@ -154,9 +269,32 @@ at_login:
 				usleep(1000000);
 				goto at_upload_form;
 			}
+#endif
 			Root_Window->addstr(3,3, "Waiting to receive by ZMODEM now");
 			refresh();
-			usleep(1000000);
+			sleep(1);
+			size_t bytes = zmodem_receive("files", /* use files directory */
+										  approver_cb,
+										  tick_cb,
+										  complete_cb,
+										  0,
+										  RZSZ_FLAGS_NONE);
+
+			// Here we kick of a zmodem receiver.  Figure it is a two-column
+			// table.
+
+			// There can't be anything written to stdout because it would
+			// interfere with the zmodem process.
+
+			// There are only maybe 16 rows max, so after 16 files, uploads are
+			// rejected.
+
+			// After the uploads are finished, there the two-column table will
+			// have filenames and reasons for rejection for rejected files.
+			// Descriptions are "greyed out".
+			// For accepted files, there second column can be entered
+			// like a form for each successfully uploaded file.
+
 			Root_Window->addstr(3,3, "Complete!                       ");
 			refresh();
 			usleep(1000000);

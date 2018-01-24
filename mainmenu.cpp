@@ -16,7 +16,7 @@ public:
 };
 
 PupperMainMenu::PupperMainMenu()
-	: NCursesMenu (n_items + 2, 30, 11 - (n_items+2)/2, 2)
+	: NCursesMenu (n_items + 2, 30, 11 - (n_items+2)/2, 40 - (32/2))
 	, I(0)
 	, slks_{Soft_Label_Key_Set::Four_Four}
 	, quit_{false}

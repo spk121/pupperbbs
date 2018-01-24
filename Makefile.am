@@ -4,6 +4,7 @@ CXXFLAGS += -ggdb -O0
 
 AM_CXXFLAGS = \
 	-I/usr/local/include/ncursesw \
+	-I/usr/local/include/libzmodem \
 	-I/usr/include/mysql \
 	-fdiagnostics-color=auto \
 	-std=c++17 -Wall -Wextra
@@ -12,14 +13,7 @@ AM_LDFLAGS = \
 	-L/usr/local/lib \
 	-L/usr/lib64/mysql
 
-# 	-I/usr/local/mysql/connector-c++-8.0/include/ \
-#	-L/usr/local/mysql/connector-c++-8.0/lib64/debug
-
 bin_PROGRAMS = pupper
-
-# pupper_SOURCES = main.cpp \
-# 	properties.hpp properties.cpp \
-# 	PupperApp.hpp PupperApp.cpp
 
 pupper_SOURCES = app.cpp \
 	login.hpp login.cpp \
@@ -34,7 +28,8 @@ pupper_SOURCES = app.cpp \
 	viewer.hpp viewer.cpp \
 	message.hpp message.cpp \
 	pfile.hpp pfile.cpp \
-	filemenu.hpp filemenu.cpp
+	filemenu.hpp filemenu.cpp \
+	upform.hpp upform.cpp
 
 BUILT_SOURCES = login.hpp.gch \
 	mainmenu.hpp.gch \
@@ -49,9 +44,7 @@ BUILT_SOURCES = login.hpp.gch \
 	$(CXX) $(CFLAGS) $(CXXFLAGS) $(AM_CFLAGS) $(AM_CXXFLAGS) -c $<
 
 pupper_LDADD = -lmysqlclient -lpthread -lm -lrt -ldl \
-	-lncurses++w -lncursesw -lformw -lpanelw -lmenuw
-
-#pupper_LDADD = -lmysqlcppconn8 -lncurses++w -lncursesw -lformw -lpanelw -lmenuw
+	-lncurses++w -lncursesw -lformw -lpanelw -lmenuw -lzmodem
 
 sysconf_DATA = pupper.xml
 

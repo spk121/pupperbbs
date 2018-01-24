@@ -1,6 +1,8 @@
 // -*- whitespace-line-column: 132; indent-tabs-mode: t; c-file-style: "stroustrup"; tab-width: 4;  -*-
 #include "msglist.hpp"
 #include <cstring>
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -25,11 +27,16 @@ PupperMessageListMenu::PupperMessageListMenu(std::vector<Message>& msg_hdrs)
 {
 	string key, val;
 	char *ckey, *cval;
+	std::stringstream sstr;
     for (auto msg: msg_hdrs) {
 		key = to_string(msg.id);
-		val = msg.subject;
+		sstr.str("");
+		// sstr << msg.sender;
+		sstr << std::right << std::setw(12) << msg.sender;
+		sstr << ' ' << std::right << std::setw(12) << msg.recipient;
+		sstr << "  " << std::left << std::setw(36) << msg.subject;
 		ckey = strdup(key.c_str());
-		cval = strdup(val.c_str());
+		cval = strdup(sstr.str().c_str());
 		I.emplace_back(new SelectItem(ckey, cval));
 	}
 	I.emplace_back(new NCursesMenuItem());

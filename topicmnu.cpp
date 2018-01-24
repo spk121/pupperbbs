@@ -17,7 +17,8 @@ public:
 };
 
 PupperTopicMenu::PupperTopicMenu(Topics& topics)
-	: NCursesMenu{topics_line_count(topics) + 2, topics_col_count(topics) + 3, 2, 2}
+	: NCursesMenu{topics_line_count(topics) + 2, topics_col_count(topics) + 3,
+		10 - topics_line_count(topics)/2, 40 - topics_col_count(topics)/2}
 	, topics_{topics}
 	, I{}
 	, slks_{Soft_Label_Key_Set::Four_Four}

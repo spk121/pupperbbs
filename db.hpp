@@ -29,7 +29,7 @@ public:
 
 	std::vector<Pfile> get_file_list();
 	int insert_pfile(std::string& name, std::string& desc);
-	
+	bool pfile_exists(std::string& name);
 private:
 	MYSQL *mysql_;
 
